@@ -1,0 +1,15 @@
+@import "~antd/dist/antd.css";
+
+
+.login-container {
+    min-height: 100vh;
+    padding-top: 120px;
+    overflow: hidden;
+    background-color: #333;
+}
+
+.login-wrapper {
+    padding: 48px;
+    background-color: #FFF;
+    border-radius: 4px;
+}
