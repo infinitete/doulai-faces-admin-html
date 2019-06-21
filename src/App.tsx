@@ -15,6 +15,7 @@ const Main = React.lazy(() => import('./component/main'));
 const LazyMainComponent: React.FC = () => <React.Suspense fallback={<Spin />}><Main /></React.Suspense>;
 
 const initialState = {
+    loaded: new Set<string>(),
     loading: [],
     apps: {
         page: 1,
@@ -23,6 +24,7 @@ const initialState = {
         elements: []
     },
     faces: {
+        loaded: false,
         page: 1,
         size: 15,
         total: 0,

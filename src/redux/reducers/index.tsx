@@ -6,13 +6,16 @@ const reducer = (state: any, action: any) => {
     switch (action.type) {
         case GET_APPS: {
             const { apps } = action;
-            const loading  = state.loading.filter((s: string) => s != 'apps');
-            return {...{...state}, apps, loading};
+            const loaded = new Set([...state.loaded, 'apps'])
+            console.log(loaded);
+            const loading  = state.loading.filter((s: string) => s !== 'apps');
+            return {...{...state}, apps, loading, loaded};
         }
         case GET_FACES: {
             const { faces } = action;
-            const loading  = state.loading.filter((s: string) => s != 'faces`');
-            return {...{...state}, faces, loading}
+            const loaded = new Set([...state.loaded, 'faces'])
+            const loading  = state.loading.filter((s: string) => s !== 'faces`');
+            return {...{...state}, faces, loading, loaded}
         }
         case LOAD_START: {
             const { loading } = state;

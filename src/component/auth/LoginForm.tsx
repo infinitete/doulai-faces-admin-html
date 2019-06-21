@@ -42,7 +42,7 @@ class LoginForm extends React.Component<any, any> {
 
         return <Row gutter={24}>
             <Col xs={{span: 20, offset: 2}} sm={{span:16, offset:4}} md={{span:12,offset:6}} lg={{span:8, offset:8}} xl={{span:4, offset:10}} className='login-wrapper'>
-                <h2 style={{textAlign:'center'}}>登录</h2>
+                <h2 style={{textAlign:'center'}}>登录人脸识别管理台</h2>
                 <Divider />
                 <Spin spinning={this.state.spin}>
                     <Form onSubmit={ this.doLogin }>

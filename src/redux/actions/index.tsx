@@ -11,7 +11,19 @@ const HOST = 'http://localhost:8080'
 
 const getApps = async (page: number = 1, size: number = 20) => {
     const json = await getSomething(`${HOST}/api/v1/app/${page}/${size}`);
-    return json.payload;
+
+    console.log(json);
+
+    if (json !== null && json !== undefined) {
+        return json.payload;
+    }
+
+    return {
+        page: 1,
+        size: 15,
+        total: 0,
+        elements: []
+    };
 }
 
 
