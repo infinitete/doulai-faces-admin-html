@@ -1,25 +1,43 @@
 import React from 'react';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import logger from 'redux-logger';
+import { createStore, applyMiddleware } from 'redux';
 import { Spin } from 'antd';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
-
+import { HashRouter as Router, Route } from 'react-router-dom';
+import reducer from './redux/reducers/index';
 import './App.css';
 
 const Login = React.lazy(() => import('./component/auth/Login'));
-const LazyLoginComponent: React.FC = () => <React.Suspense fallback={<Spin />}><Login /></React.Suspense>
+const LazyLoginComponent: React.FC = () => <React.Suspense fallback={<Spin />}><Login /></React.Suspense>;
 
 const Main = React.lazy(() => import('./component/main'));
-const LazyMainComponent: React.FC = () => <React.Suspense fallback={<Spin />}><Main /></React.Suspense>
+const LazyMainComponent: React.FC = () => <React.Suspense fallback={<Spin />}><Main /></React.Suspense>;
 
-const App: React.FC = () => {
+const initialState = {
+    loading: [],
+    apps: {
+        page: 1,
+        size: 15,
+        total: 0,
+        elements: []
+    },
+    faces: {
+        page: 1,
+        size: 15,
+        total: 0,
+        elements: []
+    }
+};
 
-    return (
-        <div className="App">
-            <Router>
-                <Route path="/login" component={ LazyLoginComponent  } />
-                <Route path="/" exact={true} component={ LazyMainComponent } />
-            </Router>
-        </div>
-    );
-}
+const store = createStore(reducer, initialState as any, applyMiddleware(thunk, logger));
+
+const App: React.FC = () => (<Provider store={store}><div className="App">
+    <Router>
+        <Route path="/" exact={true} component={ LazyMainComponent } />
+        <Route path="/login" component={ LazyLoginComponent  } />
+        <Route component={LazyMainComponent} />
+    </Router>
+</div></Provider>);
 
 export default App;
