@@ -12,8 +12,6 @@ const getSomething = async (url: string) => {
     // https?://hostname
     /* const isCors = url.split(/\b\/\b/)[0].indexOf(window.location.host) < 7; */
 
-    window.console.log('token', token);
-
     const headers = new Headers();
     headers.append('authorization', token);
 

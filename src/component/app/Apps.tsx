@@ -1,10 +1,8 @@
 import * as React from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Button, Icon, Input, PageHeader, Table, Tag } from 'antd';
-import { getApps } from '../../redux/actions/index';
-
-moment.locale('zh-cn')
+import { Button, Icon, Input, PageHeader, Switch, Table, Tag } from 'antd';
+import { getApps, toggleAppLock } from '../../redux/actions/index';
 
 const columns = [{
     title: '应用名称',
@@ -24,14 +22,6 @@ const columns = [{
     key: 'secret',
     dataIndex: 'secret'
 }, {
-    title: '是否过期',
-    key: 'expired',
-    dataIndex: 'expired',
-    render: (expired: boolean) => expired ? <Tag color='orange'>已过期</Tag>:<Tag color='green'>未过期</Tag>,
-    filters: [{text:'已过期', value:true}, {text:'未过期', value: false}] as any,
-    onFilter: (value: boolean, record: any) => record.expired === value,
-    filterMultiple: false
-}, {
     title: '创建时间',
     key: 'createdAt',
     dataIndex: 'createdAt',
@@ -43,11 +33,19 @@ const columns = [{
     dataIndex: 'expiredAt',
     render: (e: number) => moment(e).format('Y年MM月DD日 H时m分s秒')
 }, {
+    title: '是否过期',
+    render: (app: any) => app.expiredAt < (new Date()).getTime() ? <Tag color='orange'>已过期</Tag>:<Tag color='green'>未过期</Tag>,
+    filters: [{text:'已过期', value:true}, {text:'未过期', value: false}] as any,
+    onFilter: (value: boolean, record: any) => record.expired === value,
+    filterMultiple: false
+}, {
     title: '是否锁定',
     key: 'locked',
     dataIndex: 'locked',
     render: (locked: boolean) => locked? <Tag color='orange'><Icon type="lock" /> 已锁定</Tag>:<Tag color='green'>未锁定</Tag>
 }];
+
+
 
 const Apps: React.FC<any> = (props: any) => {
 
@@ -56,19 +54,45 @@ const Apps: React.FC<any> = (props: any) => {
         getApps(page, size).then(props.getApps);
     }
 
-    const cols = [...columns, {  title: '操作', render: (_: any) => <span>锁定</span> }];
+    // 用来标记上锁或解锁操作
+    const [lock, setLock] = React.useState('');
 
+    const cols = [...columns, {  title: '操作', render: (record: any) => <span>
+        <Switch checked={ !record.locked }  checkedChildren="锁定" unCheckedChildren="解锁" loading={ lock === record.id } onChange={ () => toggleLock(record) } />
+    </span> }];
+
+    // 解锁或上锁
+    const toggleLock = async (record: any) => {
+        setLock(record.id);
+        await toggleAppLock(record);
+        const elements = props.apps.elements.map((a: any) => {
+            if (a.id === record.id) {
+                a.locked = !record.locked;
+            }
+
+            return a;
+        });
+
+        setLock('');
+        const apps = {...props.apps, elements};
+        props.getApps(apps);
+    }
+
+    // 初始化数据
     React.useEffect(() => {
+
+        // 用一个全局状态来标识是否已初始化
         if (!props.loaded) {
             pagination(props.apps.page, props.apps.size);
         }
     }, [props.loaded])
 
 
-    return <div>
+    return <div style={{backgroundColor: '#f6f6f6'}}>
         <PageHeader title="应用列表" />
         <br />
         <Table
+            bordered={true}
             rowKey="id"
             loading={ props.loading  }
             columns={cols}
