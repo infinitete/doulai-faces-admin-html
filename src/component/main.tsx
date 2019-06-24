@@ -4,16 +4,20 @@ import { Icon, Layout, Menu, Spin } from 'antd';
 import { Link, HashRouter as Router, Route } from 'react-router-dom';
 
 import FooterComponent from './common/Footer';
-
 const { Suspense } = React;
 
+const Logout = React.lazy(() => import('./auth/Logout'));
 const Apps = React.lazy(() => import('./app/Apps'));
 const AppCreator = React.lazy(() => import('./app/Creator'));
 const Faces = React.lazy(() => import('./face/Faces'));
+const ChPass = React.lazy(() => import('./auth/ChangePass'));
 
+const LazyLogoutComponent: React.FC = () => <React.Suspense fallback={<Spin tip="正在退出" />}><Logout /></React.Suspense>;
 const AppsComponent: React.FC = () => <Suspense fallback={<Spin tip="正在加载" />}><Apps /></Suspense>
 const AppCreatorComponent: React.FC = () => <Suspense fallback={<Spin tip="正在加载" />}><AppCreator /></Suspense>
 const FacesComponent: React.FC = () => <Suspense fallback={<Spin tip="正在加载" />}><Faces /></Suspense>
+const ChPassComponent: React.FC = () => <Suspense fallback={<Spin tip="正在加载" />}><ChPass /></Suspense>
+
 
 //
 // 登录后的程序入口
@@ -24,7 +28,7 @@ const MainComponent: React.FC = () => {
     return <Router><Layout style={{ minHeight: '100vh' }}>
         <Layout.Header>
             <Menu theme="dark" mode="horizontal" style={{lineHeight:'64px', textAlign: 'right'}}>
-                <Menu.Item key="1"><span><Icon type="logout" />退出</span></Menu.Item>
+                <Menu.Item key="1"><Link to="/logout"><span><Icon type="logout" />退出</span></Link></Menu.Item>
             </Menu>
         </Layout.Header>
         <Layout>
@@ -40,7 +44,7 @@ const MainComponent: React.FC = () => {
                     </Menu.SubMenu>
 
                     <Menu.SubMenu key="admin" title={<span><Icon type="team" />管理员</span>}>
-                        <Menu.Item key="pwd"><span><Icon type="lock" />修改密码</span></Menu.Item>
+                        <Menu.Item key="pwd"><Link to="/ch/pass"><span><Icon type="lock" />修改密码</span></Link></Menu.Item>
                     </Menu.SubMenu>
                 </Menu>
             </Layout.Sider>
@@ -49,6 +53,8 @@ const MainComponent: React.FC = () => {
                     <Route path="/apps" component={AppsComponent} />
                     <Route path="/faces" component={FacesComponent} />
                     <Route path="/creator/app" component={AppCreatorComponent} />
+                    <Route path="/ch/pass" component={ChPassComponent} />
+                    <Route path="/logout" component={ LazyLogoutComponent  } />
                 </Layout.Content>
             </Layout>
         </Layout>

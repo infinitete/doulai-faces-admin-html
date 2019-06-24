@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Button, Divider, Col, Form, Input, message, Row, Spin } from 'antd'
 import { login } from '../../request/Request';
 
@@ -30,7 +31,8 @@ class LoginForm extends React.Component<any, any> {
             if (json.code === 20000) {
                 message.success("登录成功");
                 window.sessionStorage.setItem('token', json.payload);
-                window.location.href = '/#/app';
+                this.props.setToken(json.payload);
+                window.location.href = '/#/apps';
             } else {
                 message.error('用户名或密码错误');
             }
@@ -69,4 +71,6 @@ class LoginForm extends React.Component<any, any> {
     }
 }
 
-export default Form.create()(LoginForm);
+const d2p = (dispatch: any) => ({ setToken: (token: string) => dispatch({type: 'SET_TOKEN', token}) });
+
+export default connect(null, d2p)(Form.create()(LoginForm));

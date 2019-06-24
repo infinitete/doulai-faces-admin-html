@@ -1,5 +1,6 @@
 import * as React from 'react';
 import moment from 'moment';
+import * as Types from '../../types/index';
 import { connect } from 'react-redux';
 import { Button, Icon, Input, PageHeader, Switch, Table, Tag } from 'antd';
 import { getApps, toggleAppLock } from '../../redux/actions/index';
@@ -26,7 +27,7 @@ const columns = [{
     key: 'createdAt',
     dataIndex: 'createdAt',
     render: (c: number) => moment(c).format('Y年MM月DD日 H时m分s秒'),
-    sorter: (a: any, b: any) => a.createdAt - b.createdAt
+    sorter: (a: Types.App, b: Types.App) => a.createdAt - b.createdAt
 }, {
     title: '过期时间',
     key: 'expiredAt',
@@ -34,9 +35,9 @@ const columns = [{
     render: (e: number) => moment(e).format('Y年MM月DD日 H时m分s秒')
 }, {
     title: '是否过期',
-    render: (app: any) => app.expiredAt < (new Date()).getTime() ? <Tag color='orange'>已过期</Tag>:<Tag color='green'>未过期</Tag>,
+    render: (app: Types.App) => app.expiredAt < (new Date()).getTime() ? <Tag color='orange'>已过期</Tag>:<Tag color='green'>未过期</Tag>,
     filters: [{text:'已过期', value:true}, {text:'未过期', value: false}] as any,
-    onFilter: (value: boolean, record: any) => record.expired === value,
+    onFilter: (value: boolean, record: Types.App) => record.expired === value,
     filterMultiple: false
 }, {
     title: '是否锁定',
@@ -49,6 +50,10 @@ const columns = [{
 
 const Apps: React.FC<any> = (props: any) => {
 
+    // React.useEffect 会在触发多次初始化
+    // 所以用一个内部状态来防止多次初始化
+    const [loaded, setLoaded] = React.useState(false);
+
     function pagination(page: number | undefined = 1, size: number | undefined = 15) {
         props.makeSpin();
         getApps(page, size).then(props.getApps);
@@ -57,12 +62,12 @@ const Apps: React.FC<any> = (props: any) => {
     // 用来标记上锁或解锁操作
     const [lock, setLock] = React.useState('');
 
-    const cols = [...columns, {  title: '操作', render: (record: any) => <span>
+    const cols = [...columns, {  title: '操作', render: (record: Types.App) => <span>
         <Switch checked={ !record.locked }  checkedChildren="锁定" unCheckedChildren="解锁" loading={ lock === record.id } onChange={ () => toggleLock(record) } />
     </span> }];
 
     // 解锁或上锁
-    const toggleLock = async (record: any) => {
+    const toggleLock = async (record: Types.App) => {
         setLock(record.id);
         await toggleAppLock(record);
         const elements = props.apps.elements.map((a: any) => {
@@ -82,10 +87,11 @@ const Apps: React.FC<any> = (props: any) => {
     React.useEffect(() => {
 
         // 用一个全局状态来标识是否已初始化
-        if (!props.loaded) {
+        if (!props.loaded && !loaded) {
             pagination(props.apps.page, props.apps.size);
+            setLoaded(true);
         }
-    }, [props.loaded])
+    }, [props])
 
 
     return <div style={{backgroundColor: '#f6f6f6'}}>
@@ -111,7 +117,7 @@ const Apps: React.FC<any> = (props: any) => {
 const s2p = (states: any) => ({
     apps: states.apps,
     loaded: states.loaded.has('apps'),
-    loading: states.loading.some((s: string) => s === 'apps'),
+    loading: states.loading.has('apps'),
 });
 
 // map dispatch to props

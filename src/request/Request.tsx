@@ -38,6 +38,50 @@ const getSomething = async (url: string) => {
     }
 }
 
+const postSomething = async (url: string, body: FormData) => {
+
+    const token  = getToken();
+    if (token == null) {
+        window.location.href = '/#/login';
+        return;
+    }
+
+    const headers = new Headers();
+    headers.append('authorization', token);
+
+    // https?://hostname
+    const isCors = url.split(/\b\/\b/)[0].indexOf(window.location.host) < 7;
+
+    let m: mode = undefined;
+
+    if (isCors) {
+        m = 'cors';
+    }
+    const options = { method: 'post', mode: m, body: null, headers };
+    if (isCors) {
+        options.mode = 'cors';
+    }
+
+    try {
+        const res = await fetch(url, {...options, body});
+
+        if (res.status === 403) {
+            window.location.href = '/#/login';
+            return;
+        }
+
+        if (res.status === 200) {
+            return await res.json();
+        }
+
+        return null;
+    } catch(e) {
+        window.console.log(e);
+        window.location.href = '/#/login';
+        return;
+    }
+}
+
 const login = async (url: string, username: string, password: string) => {
     // https?://hostname
     const isCors = url.split(/\b\/\b/)[0].indexOf(window.location.host) < 7;
@@ -61,5 +105,6 @@ const login = async (url: string, username: string, password: string) => {
 
 export {
     login,
-    getSomething
+    getSomething,
+    postSomething
 }
